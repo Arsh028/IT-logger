@@ -5,7 +5,7 @@ export const Logs = () => {
     const [logs, setlogs] = useState([]);
     const [loading, setloading] = useState(false);
 
-    //componentDidMount
+    //componentDidMount 
     useEffect(() => {
       getlogs();  
     },[])
