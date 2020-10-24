@@ -1,41 +1,44 @@
-import React,{useState,useEffect} from 'react'
+import React, { useEffect } from 'react';
+import { connect } from 'react-redux';
+import LogItem from './LogItem';
+import Preloader from '../layout/Preloader';
+import PropTypes from 'prop-types';
+import { getLogs } from '../../actions/logActions';
 
-import Preloader from '../layout/Preloader'
+const Logs = ({ log: { logs, loading }, getLogs }) => {
+  useEffect(() => {
+    getLogs();
+    // eslint-disable-next-line
+  }, []);
 
-import LogItem from './LogItem'
+  if (loading || logs === null) {
+    return <Preloader />;
+  }
 
-const Logs = () => {
-    const [logs, setlogs] = useState([]);
-    const [loading, setloading] = useState(false);
+  return (
+    <ul className='collection with-header'>
+      <li className='collection-header'>
+        <h4 className='center'>System Logs</h4>
+      </li>
+      {!loading && logs.length === 0 ? (
+        <p className='center'>No logs to show...</p>
+      ) : (
+        logs.map(log => <LogItem log={log} key={log.id} />)
+      )}
+    </ul>
+  );
+};
 
-    //componentDidMount 
-    useEffect(() => {
-      getlogs();  
-    },[]);
+Logs.propTypes = {
+  log: PropTypes.object.isRequired,
+  getLogs: PropTypes.func.isRequired
+};
 
-    const getlogs = async() =>{
-        setloading(true);
-        const res = await fetch('/logs');
-        const data = await res.json();
-        setlogs(data);
-        setloading(false);
-    }
+const mapStateToProps = state => ({
+  log: state.log
+});
 
-    if(loading)
-    {
-        return <Preloader/>
-    }
-    return (
-        <ul className="collection with-header">
-            <li className="collection-header">
-                <h4 className="center">System Logs</h4>
-                {!loading && logs.length === 0 ? 
-                    (<p className='center'>No logs to show...</p>) : 
-                    (logs.map(log => <LogItem log={log} key={log.id} />))
-                }
-            </li>
-        </ul>
-    )
-}
-
-export default Logs;
+export default connect(
+  mapStateToProps,
+  { getLogs }
+)(Logs);
